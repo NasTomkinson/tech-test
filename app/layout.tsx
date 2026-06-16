@@ -32,25 +32,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body>
-        <main className="grid grid-cols-[2fr_10fr]">
-            <aside>
-                <nav className="p-4 bg-white h-screen">
-                    <ul className="flex flex-col space-y-3">
-                      <SidebarNavItem link="/dashboard" name="Home" icon="material-symbols:home-rounded" active /> 
-                      <SidebarNavItem link="/accounts" name="Accounts" icon="material-symbols:account-balance-rounded" />
-                    </ul>
-                </nav>
-            </aside>
-            <article className="">
-              <header className="p-4 bg-white  flex justify-between items-center">
-                  <Logo textClassName="text-xl font-bold" />
-                  <UserProfile
-                    name="John Doe"
-                    imageUrl="https://i.pravatar.cc/80?img=12"
-                  />
-              </header>
-              {children}            
-            </article> 
+        <main className="bg-white pb-8">
+          {children}
         </main>
       </body>
     </html>
