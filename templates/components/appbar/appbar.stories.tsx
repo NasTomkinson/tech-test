@@ -1,20 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { WelcomeCard } from './';
+import { Appbar } from './';
 
 const meta = {
-  title: 'Components/WelcomeCard',
-  component: WelcomeCard,
+  title: 'Components/Appbar',
+  component: Appbar,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  args: {
-    fullName: 'Avery Stone',
-  },
-} satisfies Meta<typeof WelcomeCard>;
+  args: {},
+} satisfies Meta<typeof Appbar>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+ 

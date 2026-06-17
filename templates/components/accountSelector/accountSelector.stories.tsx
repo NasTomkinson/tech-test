@@ -1,21 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { CardType } from './';
+import { AccountSelector } from '.';
 
 const meta = {
-  title: 'Components/cardType',
-  component: CardType,
+  title: 'Components/AccountSelector',
+  component: AccountSelector,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
   args: {
     accountType: 'currentAccount',
-    balance: 'GBP 1,200.00',
+    balance: 1200,
     accountNumber: '12345678',
     status: 'Active',
+    accountId: 'acc-current-1',
   },
-} satisfies Meta<typeof CardType>;
+} satisfies Meta<typeof AccountSelector>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -25,17 +26,19 @@ export const CurrentAccount: Story = {};
 export const Savings: Story = {
   args: {
     accountType: 'savings',
-    balance: 'GBP 8,450.25',
+    balance: 8450.25,
     accountNumber: '87654321',
     status: 'Active',
+    accountId: 'acc-savings-1',
   },
 };
 
 export const Credit: Story = {
   args: {
     accountType: 'credit',
-    balance: 'GBP 540.10',
+    balance: 540.1,
     accountNumber: '44556677',
     status: 'Pending',
+    accountId: 'acc-credit-1',
   },
 };

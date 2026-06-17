@@ -1,4 +1,4 @@
-import { mockAccounts, mockTransactions } from "../../_mock-data";
+import { mockAccounts, mockTransactions } from "../../../_mock-data";
 
 export async function GET(
   _request: Request,
@@ -17,7 +17,11 @@ export async function GET(
 
   return Response.json({
     account,
-    recentTransactions: transactions.slice(0, 5),
     transactions,
+    pagination: {
+      page: 1,
+      pageSize: transactions.length,
+      total: transactions.length,
+    },
   });
 }

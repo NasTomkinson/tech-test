@@ -1,4 +1,4 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/templates/components/icon";
 
 export interface LogoProps {
   horizontal?: boolean;
