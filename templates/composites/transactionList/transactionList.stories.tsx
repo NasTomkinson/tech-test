@@ -26,16 +26,22 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const WithSearch: Story = {
+export const WithControls: Story = {
   args: {
-    showSearch: true,
+    hasControls: true,
   },
 };
 
 export const WithAccountCards: Story = {
   args: {
     accounts: mockAccounts,
-    showSearch: true,
+    hasControls: true,
+  },
+};
+
+export const WithoutControls: Story = {
+  args: {
+    hasControls: false,
   },
 };
 

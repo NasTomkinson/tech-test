@@ -1,83 +1,102 @@
-import Link from "next/link";
-import { headers } from "next/headers";
-import { notFound } from "next/navigation";
-import { CardPreview } from "@/templates/components/cardPreview";
-import { TransactionList } from "@/templates/composites/transactionList";
-import { formatCurrency } from "@/utils";
+"use client";
+
+import { useParams } from "next/navigation";
 
 import type { Account, Transaction } from "@/app/api/_mock-data";
+import { CardPreview } from "@/templates/components/cardPreview";
+import { TransactionList } from "@/templates/composites/transactionList";
+import { formatCurrency, useFetch } from "@/utils";
 
 type AccountDetailResponse = {
   account: Account;
   recentTransactions: Transaction[];
+  transactions: Transaction[];
 };
 
-async function getAccountDetails(id: string) {
-  const headersList = await headers();
-  const host = headersList.get("host");
-
-  if (!host) {
-    notFound();
-  }
-
-  const protocol = headersList.get("x-forwarded-proto") ?? "http";
-  const response = await fetch(`${protocol}://${host}/api/accounts/${id}`, {
-    cache: "no-store",
-  });
-
-  if (response.status === 404) {
-    notFound();
-  }
-
-  if (!response.ok) {
-    throw new Error("Failed to load account details");
-  }
-
-  return (await response.json()) as AccountDetailResponse;
+function AccountDetailsSkeleton() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex flex-row items-start justify-start gap-8 border-b border-neutral-light bg-white py-4 md:sticky md:left-0 md:top-16 md:z-10 md:flex-col"
+    >
+      <div className="aspect-[1.586/1] w-28 animate-pulse rounded bg-neutral-light" />
+      <div className="flex flex-col gap-3 border-l border-neutral-light pl-8 md:mt-6 md:border-0 md:pl-0">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div key={index} className="flex flex-col gap-2">
+            <div className="h-3 w-24 animate-pulse rounded bg-neutral-light" />
+            <div className="h-5 w-32 animate-pulse rounded bg-neutral-light" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export default async function AccountDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const { account, recentTransactions } = await getAccountDetails(id);
+export default function AccountDetailsPage() {
+  const params = useParams<{ id?: string | string[] }>();
+  const accountId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { data, error, loading } = useFetch<AccountDetailResponse>(
+    accountId ? `/api/accounts/${accountId}` : null,
+  );
+  const account = data?.account;
 
   return (
-    <div className="container flex flex-col gap-6 pt-4 md:grid md:grid-cols-[auto_1fr] md:items-start h-full">
+    <div className="container grid h-full grid-cols-1 gap-4 pt-4 md:grid-cols-[auto_1fr] md:items-start">
+      {loading ? <AccountDetailsSkeleton /> : null}
 
-      <div className="flex flex-row items-start md:flex-col  justify-start gap-8 ">
-        <CardPreview accountId={account.id} accountType={account.accountType} balance={account.availableBalance} status={account.status} accountNumber={account.accountNumber}/>
-        <ul className="flex flex-col gap-1 md:gap-2 md:mt-6 border-l border-neutral-light pl-8 md:border-0 md:pl-0">
-          <li className="flex flex-col"> 
-            <span className="label"> Account status </span>
-            <span className="text-lg font-medium text-succes"> {account?.status}</span> 
-          </li> 
-          <li className="flex flex-col"> 
-            <span className="label"> Account Number </span>
-            <span className="text-lg font-medium"> {account?.accountNumber} </span>
-          </li>
-          <li className="flex flex-col"> 
-            <span className="label"> Available Balance </span>
-            <span className="text-lg font-medium"> {formatCurrency(account?.availableBalance)} </span>
-          </li>
-        </ul>
-      </div>
-  
-      <section className="flex flex-col gap-3 md:col-start-2 border-t md:border-l md:border-t-0 border-neutral-light md:max-w-4xl pt-4 md:px-4 md:pt-0 mx-auto w-full h-full">
+      {error ? (
+        <p className="rounded-md border border-utility-error p-4 text-sm text-utility-error">
+          Unable to load account details.
+        </p>
+      ) : null}
+
+      {!loading && !error && account ? (
+        <div className="sticky left-0 top-16 z-10 flex flex-row items-start justify-start gap-8 border-b border-neutral-light bg-white py-4 md:flex-col">
+          <CardPreview
+            accountId={account.id}
+            accountType={account.accountType}
+            balance={account.availableBalance}
+            status={account.status}
+            accountNumber={account.accountNumber}
+          />
+          <ul className="flex flex-col gap-1 border-l border-neutral-light pl-8 md:mt-6 md:gap-2 md:border-0 md:pl-0">
+            <li className="flex flex-col">
+              <span className="label"> Account status </span>
+              <span className="text-lg font-medium text-utility-success">
+                {account.status}
+              </span>
+            </li>
+            <li className="flex flex-col">
+              <span className="label"> Account Number </span>
+              <span className="text-lg font-medium">
+                {account.accountNumber}
+              </span>
+            </li>
+            <li className="flex flex-col">
+              <span className="label"> Available Balance </span>
+              <span className="text-lg font-medium">
+                {formatCurrency(account.availableBalance)}
+              </span>
+            </li>
+          </ul>
+        </div>
+      ) : null}
+
+      <section className="mx-auto flex h-full w-full flex-col gap-3 py-4 md:col-start-2 md:max-w-4xl md:border-l md:border-neutral-light md:px-4">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-primary-dark">
             Recent transactions
           </h2>
-          <Link
-            href={`/accounts/${account.id}/transactions`}
-            className="text-sm font-semibold text-primary"
-          >
-            View all
-          </Link>
         </div>
-        <TransactionList transactions={recentTransactions} />
+        {!error ? (
+          <TransactionList
+            initialVisibleCount={8}
+            loadMoreMode="button"
+            hasControls={false}
+            loading={loading}
+            transactions={data?.transactions ?? []}
+          />
+        ) : null}
       </section>
     </div>
   );

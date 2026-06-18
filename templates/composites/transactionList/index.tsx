@@ -12,11 +12,15 @@ import {
 } from "./components/transactionAccountFilter";
 import { TransactionSearch } from "./components/transactionSearch";
 import { TransactionSort } from "./components/transactionSort";
+import { TransactionListSkeleton } from "./transactionListSkeleton";
 
 export type TransactionListProps = {
   accounts?: Account[];
+  hasControls?: boolean;
+  initialVisibleCount?: number;
+  loadMoreMode?: "auto" | "button";
+  loading?: boolean;
   transactions?: Transaction[];
-  showSearch?: boolean;
 };
 
 export type SortOption = "amount-desc" | "amount-asc" | "date-asc" | "date-desc";
@@ -88,30 +92,45 @@ function filterTransactionsByAccount(
 
 export function TransactionList({
   accounts = [],
+  hasControls = true,
+  initialVisibleCount = pageSize,
+  loadMoreMode = "auto",
+  loading = false,
   transactions = [],
-  showSearch = false,
 }: TransactionListProps) {
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [selectedAccountId, setSelectedAccountId] =
     useState<AccountFilterValue>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [visibleCount, setVisibleCount] = useState(pageSize);
+  const [visibleCount, setVisibleCount] = useState(initialVisibleCount);
+  const [isScrollLoadingEnabled, setIsScrollLoadingEnabled] =
+    useState(loadMoreMode === "auto");
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const canShowAccountFilter = hasControls && accounts.length > 0;
   const accountsById = useMemo(
     () => new Map(accounts.map((account) => [account.id, account])),
     [accounts],
   );
   const accountFilteredTransactions = useMemo(
-    () => filterTransactionsByAccount(transactions, selectedAccountId),
-    [transactions, selectedAccountId],
+    () =>
+      canShowAccountFilter
+        ? filterTransactionsByAccount(transactions, selectedAccountId)
+        : transactions,
+    [canShowAccountFilter, transactions, selectedAccountId],
   );
   const filteredTransactions = useMemo(
-    () => searchTransactions(accountFilteredTransactions, searchQuery),
-    [accountFilteredTransactions, searchQuery],
+    () =>
+      hasControls
+        ? searchTransactions(accountFilteredTransactions, searchQuery)
+        : accountFilteredTransactions,
+    [accountFilteredTransactions, hasControls, searchQuery],
   );
   const sortedTransactions = useMemo(
-    () => sortTransactions(filteredTransactions, sortOption),
-    [filteredTransactions, sortOption],
+    () =>
+      hasControls
+        ? sortTransactions(filteredTransactions, sortOption)
+        : filteredTransactions,
+    [filteredTransactions, hasControls, sortOption],
   );
   const visibleTransactions = sortedTransactions.slice(0, visibleCount);
   const hasMoreTransactions = visibleCount < sortedTransactions.length;
@@ -119,7 +138,12 @@ export function TransactionList({
   useEffect(() => {
     const loadMoreElement = loadMoreRef.current;
 
-    if (!loadMoreElement || !hasMoreTransactions) {
+    if (
+      loading ||
+      !isScrollLoadingEnabled ||
+      !loadMoreElement ||
+      !hasMoreTransactions
+    ) {
       return;
     }
 
@@ -137,9 +161,24 @@ export function TransactionList({
     observer.observe(loadMoreElement);
 
     return () => observer.disconnect();
-  }, [hasMoreTransactions, sortedTransactions.length, visibleCount]);
+  }, [
+    hasMoreTransactions,
+    isScrollLoadingEnabled,
+    loading,
+    sortedTransactions.length,
+    visibleCount,
+  ]);
 
-  if (transactions.length === 0) {
+  if (loading) {
+    return (
+      <TransactionListSkeleton
+        hasControls={hasControls}
+        rowCount={Math.min(initialVisibleCount, pageSize)}
+      />
+    );
+  }
+
+  if ( !loading && transactions.length === 0) {
     return (
       <p className="rounded-md border border-neutral-light p-4 text-sm text-neutral-dark">
         No transactions found.
@@ -148,35 +187,39 @@ export function TransactionList({
   }
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-        {showSearch ? (
+    <section className="relative flex flex-col gap-3 bg-white">
+      {hasControls ? (
+        <div className="sticky left-0 top-16 z-2 grid grid-cols-2 grid-rows-[auto_auto] gap-2 bg-white sm:flex-row sm:items-center sm:justify-end py-4">
           <TransactionSearch
             value={searchQuery}
             onChange={(value) => {
               setSearchQuery(value);
-              setVisibleCount(pageSize);
+              setVisibleCount(initialVisibleCount);
+              setIsScrollLoadingEnabled(loadMoreMode === "auto");
             }}
+            className="col-span-full"
           />
-        ) : null}
-        {accounts.length > 0 ? (
-          <TransactionAccountFilter
-            accounts={accounts}
-            value={selectedAccountId}
+          {canShowAccountFilter ? (
+            <TransactionAccountFilter
+              accounts={accounts}
+              value={selectedAccountId}
+              onChange={(value) => {
+                setSelectedAccountId(value);
+                setVisibleCount(initialVisibleCount);
+                setIsScrollLoadingEnabled(loadMoreMode === "auto");
+              }}
+            />
+          ) : null}
+          <TransactionSort
+            value={sortOption}
             onChange={(value) => {
-              setSelectedAccountId(value);
-              setVisibleCount(pageSize);
+              setSortOption(value);
+              setVisibleCount(initialVisibleCount);
+              setIsScrollLoadingEnabled(loadMoreMode === "auto");
             }}
           />
-        ) : null}
-        <TransactionSort
-          value={sortOption}
-          onChange={(value) => {
-            setSortOption(value);
-            setVisibleCount(pageSize);
-          }}
-        />
-      </div>
+        </div>
+      ) : null}
 
       {visibleTransactions.length > 0 ? (
         <div className="divide-y divide-neutral-light rounded-md bg-white">
@@ -204,7 +247,7 @@ export function TransactionList({
                   </span>
                   <span className="label">
                     {account
-                      ? `${account.accountNumber} · ${transaction.type}`
+                      ? `${account.accountNumber} - ${transaction.type}`
                       : transaction.type}
                   </span>
                 </div>
@@ -226,7 +269,19 @@ export function TransactionList({
         </p>
       )}
 
-      {hasMoreTransactions ? (
+      {hasMoreTransactions &&
+      loadMoreMode === "button" &&
+      !isScrollLoadingEnabled ? (
+        <button
+          type="button"
+          onClick={() => setIsScrollLoadingEnabled(true)}
+          className="btn btn-secondary self-start"
+        >
+          Load more
+        </button>
+      ) : null}
+
+      {hasMoreTransactions && isScrollLoadingEnabled ? (
         <div
           ref={loadMoreRef}
           aria-hidden="true"

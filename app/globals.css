@@ -30,6 +30,22 @@
   }
 
 }
+
+@layer components {
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded px-4 py-2 text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+
+  .btn-secondary {
+    @apply border border-neutral-light bg-white text-primary-dark hover:bg-neutral-light;
+  }
+
+}
  
 :root {
   @apply font-sans;

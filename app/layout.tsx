@@ -73,7 +73,7 @@ export default async function RootLayout({
             <Header user={headerUser} notificationCount={3} className="md:col-start-2"/>
           ) : null}
         <Appbar className="fixed bottom-0 left-0 md:col-start-1 md:row-start-1 md:row-span-2"/>
-        <main className="bg-white md:col-start-2 gap-6">
+        <main className="bg-white md:col-start-2 gap-6 pb-16">
           {children}
         </main>
       </body>
