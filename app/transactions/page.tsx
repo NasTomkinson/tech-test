@@ -1,11 +1,11 @@
 "use client";
 
-import type { Account, Transaction } from "@/app/api/_mock-data";
+import type { AccountSummary, Transaction } from "@/app/api/_mock-data";
 import { TransactionList } from "@/templates/composites/transactionList";
 import { useFetch } from "@/utils";
 
 type TransactionsResponse = {
-  accounts: Account[];
+  accounts: AccountSummary[];
   transactions: Transaction[];
 };
 

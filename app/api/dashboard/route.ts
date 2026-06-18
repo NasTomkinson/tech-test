@@ -1,5 +1,19 @@
-import { mockDashboard } from "../_mock-data";
+import { auth } from "@/auth";
+
+import { getMockDashboardByEmail, toDashboardResponse } from "../_mock-data";
 
 export async function GET() {
-  return Response.json(mockDashboard);
+  const session = await auth();
+  const dashboard = getMockDashboardByEmail(session?.user?.email);
+
+  if (!dashboard) {
+    return Response.json(
+      {
+        message: "Unauthenticated",
+      },
+      { status: 401 },
+    );
+  }
+
+  return Response.json(toDashboardResponse(dashboard));
 }

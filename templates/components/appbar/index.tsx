@@ -15,7 +15,7 @@ const appbarItems: AppbarItemConfig[] = [
     { icon: "ic:round-dashboard", label: "Home", link: "/" },
     { icon: "ic:outline-credit-card", label: "Accounts", link: "/accounts" },
     { icon: "ic:outline-format-list-bulleted", label: "Transactions", link: "/transactions" },
-    { icon: "ic:person", label: "Profile", link: "/profile" },
+    { icon: "ic:person", label: "Other", link: "/profile" },
 ];
 
 function isActiveRoute(pathname: string, link: string) {
@@ -30,8 +30,8 @@ export const Appbar = ({ className = "" }: { className?: string }) => {
     const pathname = usePathname();
 
     return (
-        <aside className={`bg-white border-t border-neutral-light inset-x-0 h-16 z-999 flex px-2 sm:px-8 md:relative md:h-full md:border-r md:border-t-0 md:px-0 ${className}`}>
-            <div className="sticky top-0 left-0 container flex min-w-0 items-center justify-between max-h-full md:flex-col md:justify-start md:gap-2 md:py-12 md:w-full"> 
+        <aside className={`fixed bottom-0 left-0 bg-white border-t border-neutral-light inset-x-0 h-16 z-999 flex px-2 sm:px-8 md:bottom-auto md:top-0 md:h-screen md:w-[200px] md:border-r md:border-t-0 md:px-0 ${className}`}>
+            <div className="container flex min-w-0 items-center justify-between md:h-full md:flex-col md:justify-start md:gap-2 md:py-12 md:w-full"> 
                 {appbarItems.map((item) => (
                     <AppbarItem
                         key={item.link}

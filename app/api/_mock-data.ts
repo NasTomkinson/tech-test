@@ -16,6 +16,23 @@ export type Account = {
   status: "Active" | "Inactive";
 };
 
+export type MockDashboard = {
+  totalAccountBalance: number;
+  summaryCards: {
+    currentBalance: number;
+    monthlyDeposits: number;
+    monthlyWithdrawals: number;
+  };
+  quickActions: QuickAction[];
+  user: User;
+  accounts: Account[];
+};
+
+export type AccountSummary = Pick<
+  Account,
+  "id" | "accountNumber" | "availableBalance" | "accountType" | "status"
+>;
+
 export type Transaction = {
   id: string;
   accountID: Account["id"];
@@ -34,15 +51,81 @@ export type QuickAction = {
   href: string;
 };
 
+export type QuickActionSummary = Pick<QuickAction, "id" | "title" | "icon" | "href">;
+
+export type DashboardResponse = {
+  firstName: User["firstName"];
+  totalAccountBalance: MockDashboard["totalAccountBalance"];
+  summaryCards: MockDashboard["summaryCards"];
+  quickActions: QuickActionSummary[];
+  accounts: AccountSummary[];
+};
+
+export type AuthUserSummary = Pick<
+  User,
+  "id" | "firstName" | "lastName" | "email" | "avatarUrl"
+>;
+
+export type UserProfile = Pick<
+  User,
+  "firstName" | "lastName" | "email" | "phone" | "address" | "avatarUrl"
+>;
+
 export const mockUser: User = {
   id: "user-1",
   firstName: "Jordan",
   lastName: "Lee",
-  email: "jordan.lee@eaglebank.test",
+  email: "jordan@eaglebank.test",
   phone: "+44 20 7946 0958",
   address: "42 King Street, London, SW1A 1AA",
   avatarUrl: "/window.svg",
 };
+
+export const mockSecondUser: User = {
+  id: "user-2",
+  firstName: "Nas",
+  lastName: "Tomkinson",
+  email: "nastomkinson@gmail.com",
+  phone: "+44 20 7946 1010",
+  address: "18 Market Street, London, E1 6AN",
+  avatarUrl: "/globe.svg",
+};
+
+export const mockUsers: User[] = [mockUser, mockSecondUser];
+
+export const mockAuthCredentials = [
+  {
+    email: mockUser.email,
+    password: "password123",
+    user: mockUser,
+  },
+  {
+    email: mockSecondUser.email,
+    password: "password123",
+    user: mockSecondUser,
+  },
+] as const;
+
+export function getMockUserByCredentials(email: string, password: string) {
+  return (
+    mockAuthCredentials.find(
+      (credentials) =>
+        credentials.email.toLowerCase() === email.toLowerCase() &&
+        credentials.password === password,
+    )?.user ?? null
+  );
+}
+
+export function getMockUserByEmail(email: string | null | undefined) {
+  if (!email) {
+    return null;
+  }
+
+  return (
+    mockUsers.find((user) => user.email.toLowerCase() === email.toLowerCase()) ??
+    null
+  );
+}
 
 export const mockAccounts: Account[] = [
   {
@@ -63,6 +146,30 @@ export const mockAccounts: Account[] = [
     id: "acc-credit-1",
     accountNumber: "4321 9876",
     availableBalance: 2200,
+    accountType: "credit",
+    status: "Active",
+  },
+];
+
+export const mockSecondUserAccounts: Account[] = [
+  {
+    id: "nasto-current-1",
+    accountNumber: "2244 8091",
+    availableBalance: 6842.35,
+    accountType: "currentAccount",
+    status: "Active",
+  },
+  {
+    id: "nasto-savings-1",
+    accountNumber: "1190 4502",
+    availableBalance: 24610.9,
+    accountType: "savings",
+    status: "Active",
+  },
+  {
+    id: "nasto-credit-1",
+    accountNumber: "5518 7730",
+    availableBalance: 3750,
     accountType: "credit",
     status: "Active",
   },
@@ -167,20 +274,24 @@ const extraTransactionAmounts = [
   -204.1,
 ];
 
-const extraMockTransactions: Transaction[] = Array.from(
-  { length: 150 },
-  (_, index) => {
-    const accountIDs: Account["id"][] = [
-      "acc-current-1",
-      "acc-savings-1",
-      "acc-credit-1",
-    ];
+function createExtraMockTransactions({
+  accountIDs,
+  count,
+  idOffset,
+  dateOffset,
+}: {
+  accountIDs: Account["id"][];
+  count: number;
+  idOffset: number;
+  dateOffset: number;
+}) {
+  return Array.from({ length: count }, (_, index): Transaction => {
     const amount = extraTransactionAmounts[index % extraTransactionAmounts.length];
     const isDeposit = amount > 0;
-    const transactionDate = new Date(Date.UTC(2026, 3, 14 - index));
+    const transactionDate = new Date(Date.UTC(2026, 3, dateOffset - index));
 
     return {
-      id: `txn-${index + 51}`,
+      id: `txn-${index + idOffset}`,
       accountID: accountIDs[index % accountIDs.length],
       type: isDeposit
         ? "Deposit"
@@ -201,12 +312,47 @@ const extraMockTransactions: Transaction[] = Array.from(
             ? "Pending"
             : "Completed",
     };
-  },
-);
+  });
+}
+
+const extraMockTransactions: Transaction[] = createExtraMockTransactions({
+  accountIDs: ["acc-current-1", "acc-savings-1", "acc-credit-1"],
+  count: 150,
+  idOffset: 51,
+  dateOffset: 14,
+});
 
 export const mockTransactions: Transaction[] = [
   ...baseMockTransactions,
   ...extraMockTransactions,
+];
+
+const secondUserBaseMockTransactions: Transaction[] = [
+  { id: "nasto-txn-1", accountID: "nasto-current-1", type: "Deposit", description: "Salary payment", amount: 4100, date: "2026-06-02", status: "Completed" },
+  { id: "nasto-txn-2", accountID: "nasto-current-1", type: "Payment", description: "Mortgage payment", amount: -1265.4, date: "2026-06-03", status: "Completed" },
+  { id: "nasto-txn-3", accountID: "nasto-savings-1", type: "Transfer", description: "Savings transfer", amount: 900, date: "2026-06-04", status: "Completed" },
+  { id: "nasto-txn-4", accountID: "nasto-current-1", type: "Withdrawal", description: "Supermarket", amount: -84.73, date: "2026-06-05", status: "Completed" },
+  { id: "nasto-txn-5", accountID: "nasto-credit-1", type: "Withdrawal", description: "Travel booking", amount: -312.1, date: "2026-06-06", status: "Pending" },
+  { id: "nasto-txn-6", accountID: "nasto-current-1", type: "Payment", description: "Energy bill", amount: -128.94, date: "2026-06-07", status: "Completed" },
+  { id: "nasto-txn-7", accountID: "nasto-savings-1", type: "Deposit", description: "Interest payment", amount: 31.12, date: "2026-06-08", status: "Completed" },
+  { id: "nasto-txn-8", accountID: "nasto-current-1", type: "Withdrawal", description: "Restaurant", amount: -72.55, date: "2026-06-09", status: "Completed" },
+  { id: "nasto-txn-9", accountID: "nasto-credit-1", type: "Payment", description: "Card repayment", amount: -400, date: "2026-06-10", status: "Completed" },
+  { id: "nasto-txn-10", accountID: "nasto-current-1", type: "Deposit", description: "Freelance invoice", amount: 720, date: "2026-06-11", status: "Completed" },
+];
+
+const secondUserExtraMockTransactions: Transaction[] = createExtraMockTransactions({
+  accountIDs: ["nasto-current-1", "nasto-savings-1", "nasto-credit-1"],
+  count: 90,
+  idOffset: 11,
+  dateOffset: 10,
+}).map((transaction) => ({
+  ...transaction,
+  id: `nasto-${transaction.id}`,
+}));
+
+export const mockSecondUserTransactions: Transaction[] = [
+  ...secondUserBaseMockTransactions,
+  ...secondUserExtraMockTransactions,
 ];
 
 export const mockQuickActions: QuickAction[] = [
@@ -240,7 +386,7 @@ export const mockQuickActions: QuickAction[] = [
   },
 ];
 
-export const mockDashboard = {
+export const mockDashboard: MockDashboard = {
   totalAccountBalance: 19195.7,
   summaryCards: {
     currentBalance: 4120.2,
@@ -251,3 +397,101 @@ export const mockDashboard = {
   user: mockUser,
   accounts: mockAccounts
 };
+
+export const mockSecondUserDashboard: MockDashboard = {
+  totalAccountBalance: 35103.25,
+  summaryCards: {
+    currentBalance: 6842.35,
+    monthlyDeposits: 5751.12,
+    monthlyWithdrawals: 1467.07,
+  },
+  quickActions: mockQuickActions,
+  user: mockSecondUser,
+  accounts: mockSecondUserAccounts,
+};
+
+export function getMockAccountsByEmail(email: string | null | undefined) {
+  const user = getMockUserByEmail(email);
+
+  if (!user) {
+    return [];
+  }
+
+  return user.id === mockSecondUser.id ? mockSecondUserAccounts : mockAccounts;
+}
+
+export function getMockTransactionsByEmail(email: string | null | undefined) {
+  const user = getMockUserByEmail(email);
+
+  if (!user) {
+    return [];
+  }
+
+  return user.id === mockSecondUser.id
+    ? mockSecondUserTransactions
+    : mockTransactions;
+}
+
+export function getMockDashboardByEmail(email: string | null | undefined) {
+  const user = getMockUserByEmail(email);
+
+  if (!user) {
+    return null;
+  }
+
+  return user.id === mockSecondUser.id ? mockSecondUserDashboard : mockDashboard;
+}
+
+export function toAccountSummary(account: Account): AccountSummary {
+  return {
+    id: account.id,
+    accountNumber: account.accountNumber,
+    availableBalance: account.availableBalance,
+    accountType: account.accountType,
+    status: account.status,
+  };
+}
+
+export function toQuickActionSummary(
+  quickAction: QuickAction,
+): QuickActionSummary {
+  return {
+    id: quickAction.id,
+    title: quickAction.title,
+    icon: quickAction.icon,
+    href: quickAction.href,
+  };
+}
+
+export function toDashboardResponse(
+  dashboard: MockDashboard,
+): DashboardResponse {
+  return {
+    firstName: dashboard.user.firstName,
+    totalAccountBalance: dashboard.totalAccountBalance,
+    summaryCards: dashboard.summaryCards,
+    quickActions: dashboard.quickActions.map(toQuickActionSummary),
+    accounts: dashboard.accounts.map(toAccountSummary),
+  };
+}
+
+export function toAuthUserSummary(user: User): AuthUserSummary {
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+  };
+}
+
+export function toUserProfile(user: User): UserProfile {
+  return {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone,
+    address: user.address,
+    avatarUrl: user.avatarUrl,
+  };
+}

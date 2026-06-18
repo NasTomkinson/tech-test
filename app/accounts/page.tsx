@@ -1,11 +1,11 @@
 "use client";
 
-import type { Account } from "@/app/api/_mock-data";
+import type { AccountSummary } from "@/app/api/_mock-data";
 import { AccountSelector } from "@/templates/components/accountSelector";
 import { useFetch } from "@/utils";
 
 type AccountsResponse = {
-  accounts: Account[];
+  accounts: AccountSummary[];
 };
 
 export default function AccountsPage() {

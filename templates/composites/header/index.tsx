@@ -20,7 +20,7 @@ export function Header({ user, notificationCount = 0, className }: HeaderProps) 
   const hasNotifications = notificationCount > 0;
 
   return (
-    <header className={`sticky top-0 z-999 bg-primary-dark text-white h-16 ${className}`}>
+    <header className={`fixed left-0 top-0 z-999 h-16 w-full bg-primary-dark text-white md:left-[200px] md:w-[calc(100%-200px)] ${className}`}>
       <div className="container flex w-full items-center justify-between gap-4 h-full">
 
       <div className="flex min-w-0 items-center gap-3">

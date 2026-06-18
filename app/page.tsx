@@ -1,6 +1,6 @@
 "use client";
 
-import type { mockDashboard } from "@/app/api/_mock-data";
+import type { DashboardResponse } from "@/app/api/_mock-data";
 import { Icon } from "@/templates/components/icon";
 import { formatCurrency, useFetch } from "@/utils";
 import { QuickActions } from "@/templates/composites/quickActions";
@@ -8,7 +8,7 @@ import type { SummaryItem } from "@/templates/composites/summaries";
 import { Summaries } from "@/templates/composites/summaries";
 import { AccountSelector } from "@/templates/components/accountSelector";
 
-type DashboardData = typeof mockDashboard;
+type DashboardData = DashboardResponse;
 
 export default function DashboardPage() {
   const {
@@ -41,7 +41,7 @@ export default function DashboardPage() {
           <div className="container flex grow flex-col justify-center gap-2">
             <div className="flex grow flex-col justify-center gap-2">
               <span className="text-3xl font-medium leading-none text-white sm:text-3xl">
-                Hi, {dashboardData?.user?.firstName ?? ""}
+                Hi, {dashboardData?.firstName ?? ""}
               </span>
             </div>
           </div>
