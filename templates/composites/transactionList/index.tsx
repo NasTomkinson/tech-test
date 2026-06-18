@@ -2,13 +2,19 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { Transaction } from "@/app/api/_mock-data";
+import type { Account, Transaction } from "@/app/api/_mock-data";
+import { CardPreview } from "@/templates/components/cardPreview";
 import { formatCurrency } from "@/utils/formatCurrency";
 
+import {
+  type AccountFilterValue,
+  TransactionAccountFilter,
+} from "./components/transactionAccountFilter";
 import { TransactionSearch } from "./components/transactionSearch";
 import { TransactionSort } from "./components/transactionSort";
 
 export type TransactionListProps = {
+  accounts?: Account[];
   transactions?: Transaction[];
   showSearch?: boolean;
 };
@@ -69,17 +75,39 @@ function searchTransactions(transactions: Transaction[], query: string) {
   );
 }
 
+function filterTransactionsByAccount(
+  transactions: Transaction[],
+  accountId: AccountFilterValue,
+) {
+  if (accountId === "all") {
+    return transactions;
+  }
+
+  return transactions.filter((transaction) => transaction.accountID === accountId);
+}
+
 export function TransactionList({
+  accounts = [],
   transactions = [],
   showSearch = false,
 }: TransactionListProps) {
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
+  const [selectedAccountId, setSelectedAccountId] =
+    useState<AccountFilterValue>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const accountsById = useMemo(
+    () => new Map(accounts.map((account) => [account.id, account])),
+    [accounts],
+  );
+  const accountFilteredTransactions = useMemo(
+    () => filterTransactionsByAccount(transactions, selectedAccountId),
+    [transactions, selectedAccountId],
+  );
   const filteredTransactions = useMemo(
-    () => searchTransactions(transactions, searchQuery),
-    [transactions, searchQuery],
+    () => searchTransactions(accountFilteredTransactions, searchQuery),
+    [accountFilteredTransactions, searchQuery],
   );
   const sortedTransactions = useMemo(
     () => sortTransactions(filteredTransactions, sortOption),
@@ -131,6 +159,16 @@ export function TransactionList({
             }}
           />
         ) : null}
+        {accounts.length > 0 ? (
+          <TransactionAccountFilter
+            accounts={accounts}
+            value={selectedAccountId}
+            onChange={(value) => {
+              setSelectedAccountId(value);
+              setVisibleCount(pageSize);
+            }}
+          />
+        ) : null}
         <TransactionSort
           value={sortOption}
           onChange={(value) => {
@@ -142,29 +180,45 @@ export function TransactionList({
 
       {visibleTransactions.length > 0 ? (
         <div className="divide-y divide-neutral-light rounded-md bg-white">
-          {visibleTransactions.map((transaction) => (
-            <article
-              key={transaction.id}
-              className="flex justify-between items-center gap-3 p-2"
-            >
-              <div className="flex flex-col min-w-0">
-                <span className="truncate text-sm font-semibold">
-                  {transaction.description}
-                </span>
-                <span className="label">
-                  {transaction.type}
-                </span>
-              </div>
-              <span
-                className={[
-                  "text-right font-medium text-lg",
-                  transaction.amount > 0 ? "text-utility-success" : "",
-                ].join(" ")}
+          {visibleTransactions.map((transaction) => {
+            const account = accountsById.get(transaction.accountID);
+
+            return (
+              <article
+                key={transaction.id}
+                className="flex items-center gap-3 p-2"
               >
-                {formatTransactionAmount(transaction.amount)}
-              </span>
-            </article>
-          ))}
+                {account ? (
+                  <CardPreview
+                    accountId={account.id}
+                    accountNumber={account.accountNumber}
+                    accountType={account.accountType}
+                    balance={account.availableBalance}
+                    className="shrink-0 max-w-18"
+                    status={account.status}
+                  />
+                ) : null}
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-sm font-semibold">
+                    {transaction.description}
+                  </span>
+                  <span className="label">
+                    {account
+                      ? `${account.accountNumber} · ${transaction.type}`
+                      : transaction.type}
+                  </span>
+                </div>
+                <span
+                  className={[
+                    "text-right font-medium text-lg",
+                    transaction.amount > 0 ? "text-utility-success" : "",
+                  ].join(" ")}
+                >
+                  {formatTransactionAmount(transaction.amount)}
+                </span>
+              </article>
+            );
+          })}
         </div>
       ) : (
         <p className="rounded-md border border-neutral-light p-4 text-sm text-neutral-dark">

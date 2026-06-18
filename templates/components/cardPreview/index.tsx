@@ -1,6 +1,3 @@
-import { Logo } from "@/components/logo";
-import { formatCurrency } from "@/utils/formatCurrency";
-
 export type AccountType = "credit" | "savings" | "currentAccount";
 
 const accountTypeStyles: Record<AccountType, string> = {
@@ -9,41 +6,68 @@ const accountTypeStyles: Record<AccountType, string> = {
   "currentAccount": "bg-primary-dark text-white",
 };
 
-const accountTypeLabels: Record<AccountType, string> = {
-  credit: "Credit",
-  savings: "Savings",
-  "currentAccount": "Current Account",
-};
-
 export interface CardPreviewProps {
   accountType: AccountType;
   balance: number;
   accountNumber: string;
   status: string;
   className?: string;
-  accountId: string
+  accountId: string;
 }
 
 export function CardPreview({
   accountType,
-  balance,
-  accountNumber,
-  status,
   className = "",
   accountId,
 }: CardPreviewProps) {
   return (
     <div
+      data-account-id={accountId}
       className={[
-        "relative aspect-[1.586/1] w-28 overflow-hidden rounded p-6 shadow-2xl", 
+        "relative aspect-[1.586/1] w-28 overflow-hidden rounded shadow-2xl",
         accountTypeStyles[accountType],
         className,
       ].join(" ")}
-    > 
-      <div className="absolute -bottom-12 -left-8 h-28 w-28 rounded-full bg-gradient-to-l from-black/8 to-black/2" />
-      <div className="flex flex-col items-center justify-center gap-1 h-full"> 
-        <Logo textClassName="text-xs" iconClassName="w-3 h-3" /> 
-      </div>
-    </div> 
+    >
+      <svg
+        aria-hidden="true"
+        className="h-full w-full"
+        viewBox="0 0 158.6 100"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <circle
+          cx="22"
+          cy="104"
+          r="42"
+          fill="currentColor"
+          opacity="0.1"
+        />
+
+        <g transform="translate(20 38) scale(1.25)">
+          <g
+            fill="none"
+            stroke="currentColor"
+            strokeLinejoin="round"
+            strokeMiterlimit="10"
+            strokeWidth="1.8"
+            transform="scale(0.62)"
+          >
+            <path d="m9.109 9.578-4.783-2.34L.5 11.5h5.246l.493 7.217L17.717 23.5zm0 0L18.191 1.5L14.317 18" />
+            <path d="m17.042 6.391 5.458-2.5-7.698 14.895M4.326 7.239l1.42 4.26m.494 7.217l2.869-9.138" />
+          </g>
+          <text
+            x="20"
+            y="10.7"
+            fill="currentColor"
+            fontFamily="inherit"
+            fontSize="12"
+            fontStyle="italic"
+            fontWeight="700"
+          >
+            EagleBank
+          </text>
+        </g>
+      </svg>
+    </div>
   );
 }

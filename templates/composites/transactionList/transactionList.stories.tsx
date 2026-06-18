@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
-import { mockTransactions } from "@/app/api/_mock-data";
+import { mockAccounts, mockTransactions } from "@/app/api/_mock-data";
 
 import { TransactionList } from "./";
 
@@ -28,6 +28,13 @@ export const Default: Story = {};
 
 export const WithSearch: Story = {
   args: {
+    showSearch: true,
+  },
+};
+
+export const WithAccountCards: Story = {
+  args: {
+    accounts: mockAccounts,
     showSearch: true,
   },
 };

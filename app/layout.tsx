@@ -68,7 +68,7 @@ export default async function RootLayout({
       lang="en"
       className={`${inter.variable} ${geistMono.variable} h-full w-full antialiased`}
     >
-      <body className="md:grid md:grid-cols-[200px_2fr] md:grid-rows-[1fr_auto]">
+      <body className="md:grid md:grid-cols-[200px_2fr] md:grid-rows-[auto_1fr] min-h-screen">
           {headerUser ? (
             <Header user={headerUser} notificationCount={3} className="md:col-start-2"/>
           ) : null}
