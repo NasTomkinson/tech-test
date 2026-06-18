@@ -19,3 +19,8 @@ The application should be made up of reusable components and composites with sty
 
 # Documentation links
 - TailwindCSS (https://tailwindcss.com/docs/)
+
+# Architecutre 
+- We should be following the latest NextJS documentation for guidence on how this project should be structured. 
+- All routes should within the /api folder as per the documentation 
+- We should have the user information from the server, we can use this information on the front-end to fetch data required for other aspects of the application.

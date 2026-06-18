@@ -35,39 +35,14 @@ export function CardPreview({
   return (
     <div
       className={[
-        "relative aspect-[2.4/1]  overflow-hidden rounded-2xl p-6 shadow-2xl w-full mx-auto", 
+        "relative aspect-[1.586/1] w-28 overflow-hidden rounded p-6 shadow-2xl", 
         accountTypeStyles[accountType],
         className,
       ].join(" ")}
-    >
-          <div className="absolute -bottom-12 -left-8 h-48 w-48 rounded-full bg-gradient-to-l from-black/8 to-black/2" />
-      <div className="relative flex h-full flex-col justify-between">
-        <div className="flex justify-between items-center"> 
-          
-          <div className="flex flex-col items-start justify-center">
-            <div className="flex flex-row items-center gap-1">
-              <Logo />
-            </div>
-
-            <span  className="italic font-semibold text-sm"> {accountTypeLabels[accountType]} </span>
-          </div>
-
-          <div className=" ">
-            <p className="text-3xl font-semibold tracking-wide">{formatCurrency(balance)}</p>
-          </div>
-        </div>
-
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <span className="text-xs">
-              Account number
-            </span>
-            <p className="font-mono text-sm tracking-wide">{accountNumber}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs uppercase tracking-wide opacity-75">{status}</p>
-          </div>
-        </div>
+    > 
+      <div className="absolute -bottom-12 -left-8 h-28 w-28 rounded-full bg-gradient-to-l from-black/8 to-black/2" />
+      <div className="flex flex-col items-center justify-center gap-1 h-full"> 
+        <Logo textClassName="text-xs" iconClassName="w-3 h-3" /> 
       </div>
     </div> 
   );

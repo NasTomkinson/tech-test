@@ -10,16 +10,17 @@ export type HeaderUser = {
 
 export type HeaderProps = {
   user: HeaderUser;
+  className?: string;
   notificationCount?: number;
 };
 
-export function Header({ user, notificationCount = 0 }: HeaderProps) {
+export function Header({ user, notificationCount = 0, className }: HeaderProps) {
   const visibleNotificationCount =
     notificationCount > 9 ? "9+" : notificationCount.toString();
   const hasNotifications = notificationCount > 0;
 
   return (
-    <header className="sticky top-0 z-999 bg-primary-dark text-white h-16">
+    <header className={`sticky top-0 z-999 bg-primary-dark text-white h-16 ${className}`}>
       <div className="container flex w-full items-center justify-between gap-4 h-full">
 
       <div className="flex min-w-0 items-center gap-3">

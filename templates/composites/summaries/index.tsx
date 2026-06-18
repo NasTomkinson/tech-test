@@ -26,7 +26,7 @@ export function SummaryCard({ summary }: SummaryCardProps) {
   return (
     <article className="col-span-1 rounded-md ring-1 ring-neutral-light p-3 md:col-span-2 bg-white">
       <div className="flex flex-col gap-1">
-        <span className="flex items-center gap-1 text-[10px] uppercase tracking-wide  sm:text-xs">
+        <span className="flex items-center gap-1 label">
           <Icon name={summary.icon} className={["h-4 w-4", summaryToneStyles[summary.tone]].join(" ")} />
           {summary.title}
         </span>

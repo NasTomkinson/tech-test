@@ -34,12 +34,12 @@ export function AccountSelector({
 }: AccountSelectorProps) {
   return ( 
 
-    <a href={`/accounts/${accountId}`} className="border border-neutral-light p-2 rounded-md flex flex-col justify-center items-start gap-4">
+    <a href={`/accounts/${accountId}`} className="border border-neutral-light p-3 rounded flex flex-col justify-center items-start gap-0">
       <div className="flex flex-row items-center gap-4 w-full"> 
 
         <div
           className={[
-            "relative aspect-[1.586/1] w-28 overflow-hidden rounded-lg p-6 shadow-2xl", 
+            "relative aspect-[1.586/1] w-auto overflow-hidden rounded p-6 shadow-2xl", 
             accountTypeStyles[accountType],
             className,
           ].join(" ")}
@@ -50,21 +50,11 @@ export function AccountSelector({
           </div>
         </div> 
 
-
-
-        <div  className="flex flex-col justify-between items-start w-full">
-          <div className="flex justify-between items-center w-full"> 
-            <span className="font-semibold"> { accountTypeLabels[accountType] } </span>  
-            <div className="flex flex-col items-end gap-1">
-              <p className="font-mono text-sm tracking-wide">{accountNumber}</p>
-              <p className="text-[10px] uppercase tracking-wide text-neutral-dark">{status}</p>
-            </div>
-          </div> 
-          <div className="flex flex-col mt-3">
-            <p className="text-[10px] uppercase tracking-wide text-neutral-dark  "> Available Balance </p>
-            <p className="text-xl font-semibold tracking-wide">{formatCurrency(balance)}</p>            
-          </div>  
-
+        <div  className="grid grid-cols-[auto_auto] grid-rows-[auto_auto] gap-x-4 w-full" >
+          <span className="font-medium col-start-1 row-start-1"> { accountTypeLabels[accountType] } </span>  
+          <p className="label col-start-1 row-start-2">{accountNumber}</p> 
+          <p className="text-lg font-medium tracking-wide text-right">{formatCurrency(balance)}</p>       
+          <p className="label text-right"> Balance </p>      
         </div>        
       </div>
 

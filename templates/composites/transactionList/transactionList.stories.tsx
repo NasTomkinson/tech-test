@@ -26,6 +26,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const WithSearch: Story = {
+  args: {
+    showSearch: true,
+  },
+};
+
 export const Empty: Story = {
   args: {
     transactions: [],

@@ -68,12 +68,12 @@ export default async function RootLayout({
       lang="en"
       className={`${inter.variable} ${geistMono.variable} h-full w-full antialiased`}
     >
-      <body className="lg:grid lg:grid-cols-[200px_2fr]">
+      <body className="md:grid md:grid-cols-[200px_2fr] md:grid-rows-[1fr_auto]">
           {headerUser ? (
-            <Header user={headerUser} notificationCount={3} />
+            <Header user={headerUser} notificationCount={3} className="md:col-start-2"/>
           ) : null}
-        <Appbar className="fixed bottom-0 left-0 lg:col-start-1"/>
-        <main className="bg-white lg:col-start-2 gap-6">
+        <Appbar className="fixed bottom-0 left-0 md:col-start-1 md:row-start-1 md:row-span-2"/>
+        <main className="bg-white md:col-start-2 gap-6">
           {children}
         </main>
       </body>

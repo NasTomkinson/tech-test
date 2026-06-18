@@ -31,7 +31,7 @@ export function QuickActionCard({ action }: QuickActionCardProps) {
 export function QuickActions({ actions = [] }: QuickActionsProps) {
   return (
     <section id="quick-actions" className="col-span-full grid grid-cols-subgrid gap-3">
-      <h2 className="col-span-2 font-semibold">Quick actions</h2>
+      <h2 className="col-span-full font-semibold">Quick actions</h2>
       {actions.map((action) => (
         <QuickActionCard key={action.id} action={action} />
       ))}

@@ -68,7 +68,7 @@ export default async function AccountTransactionsPage({
         </div>
       </div>
 
-      <TransactionList transactions={transactions} />
+      <TransactionList transactions={transactions} showSearch />
     </div>
   );
 }
